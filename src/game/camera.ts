@@ -17,7 +17,7 @@ export class CameraManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
-    const { x, y } = player.getPosition();
+    const { x, y } = player.position;
     const targetX = canvasWidth / 2 - x;
     const targetY = canvasHeight / 2 - y;
 

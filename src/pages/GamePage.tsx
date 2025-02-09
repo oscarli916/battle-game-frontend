@@ -2,18 +2,18 @@ import { useEffect, useRef } from "react";
 import { GameClient } from "../game/client";
 
 const GamePage = () => {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	useEffect(() => {
-		if (canvasRef.current) {
-			new GameClient(canvasRef.current);
-		}
-	}, []);
+  useEffect(() => {
+    if (canvasRef.current) {
+      new GameClient(canvasRef.current);
+    }
+  }, []);
 
-	return (
-		<div className="h-screen flex justify-center items-center bg-white">
-			<canvas ref={canvasRef} />
-		</div>
-	);
+  return (
+    <div className="h-screen flex justify-center items-center bg-white">
+      <canvas ref={canvasRef} className="border" />
+    </div>
+  );
 };
 export default GamePage;
