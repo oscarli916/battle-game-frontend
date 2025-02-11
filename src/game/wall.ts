@@ -9,11 +9,11 @@ export class Wall {
     this.dimension = dimension;
   }
 
-  render(ctx: CanvasRenderingContext2D) {
+  render(ctx: CanvasRenderingContext2D, cameraPosition: IPosition) {
     ctx.fillStyle = "brown";
     ctx.fillRect(
-      this.position.x,
-      this.position.y,
+      this.position.x - cameraPosition.x,
+      this.position.y - cameraPosition.y,
       this.dimension.width,
       this.dimension.height
     );

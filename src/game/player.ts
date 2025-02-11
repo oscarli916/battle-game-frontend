@@ -58,7 +58,11 @@ export class Player {
     });
   }
 
-  update(ctx: CanvasRenderingContext2D, walls: Wall[]) {
+  update(
+    ctx: CanvasRenderingContext2D,
+    walls: Wall[],
+    cameraPosition: IPosition
+  ) {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -69,9 +73,9 @@ export class Player {
     }
 
     if (this.keys.right.pressed) {
-      this.velocity.x = 4;
+      this.velocity.x = 5;
     } else if (this.keys.left.pressed) {
-      this.velocity.x = -4;
+      this.velocity.x = -5;
     } else {
       this.velocity.x = 0;
     }
@@ -84,6 +88,7 @@ export class Player {
         this.position.x <= wall.position.x + wall.dimension.width
       ) {
         this.velocity.y = 0;
+        this.position.y = wall.position.y - this.height;
       }
 
       if (
@@ -94,12 +99,22 @@ export class Player {
         this.position.y < wall.position.y + wall.dimension.height
       ) {
         this.velocity.x = 0;
+        if (this.keys.right.pressed) {
+          this.position.x = wall.position.x - this.width;
+        } else if (this.keys.left.pressed) {
+          this.position.x = wall.position.x + wall.dimension.width;
+        }
       }
     });
   }
 
-  render(ctx: CanvasRenderingContext2D) {
+  render(ctx: CanvasRenderingContext2D, cameraPosition: IPosition) {
     ctx.fillStyle = this.color;
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.fillRect(
+      this.position.x - cameraPosition.x,
+      this.position.y - cameraPosition.y,
+      this.width,
+      this.height
+    );
   }
 }

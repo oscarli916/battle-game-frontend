@@ -4,11 +4,11 @@ import { Wall } from "./wall";
 
 export class GameClient {
   private ctx: CanvasRenderingContext2D;
-  private canvasWidth: number = 1200;
+  private canvasWidth: number = 1280;
   private canvasHeight: number = 800;
   private players: Player[];
   private walls: Wall[];
-  // private cameraManager: CameraManager;
+  private cameraManager: CameraManager;
 
   constructor(canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext("2d")!;
@@ -26,9 +26,20 @@ export class GameClient {
       new Wall({ x: 0, y: 0 }, { width: 64, height: this.canvasHeight }),
       new Wall(
         { x: 0, y: this.canvasHeight - 64 },
-        { width: 64 * 10, height: 64 }
+        { width: 64 * 20, height: 64 }
+      ),
+      new Wall({ x: 64 * 20, y: 0 }, { width: 64, height: this.canvasHeight }),
+      new Wall(
+        { x: 64 * 15, y: this.canvasHeight - 128 },
+        { width: 64, height: 64 }
       ),
     ];
+    this.cameraManager = new CameraManager(
+      this.canvasWidth,
+      this.canvasHeight,
+      64 * 100,
+      800
+    );
 
     this.startRenderLoop();
   }
@@ -46,23 +57,12 @@ export class GameClient {
   private render() {
     this.clearCanvas();
 
-    // center canvas
-    // const { moveX, moveY } = this.cameraManager.getTransformValues(
-    // 	this.player,
-    // 	this.ctx.canvas.width,
-    // 	this.ctx.canvas.height
-    // );
-    // this.ctx.setTransform(1, 0, 0, 1, moveX, moveY);
-
-    // const { mapTileWidth, mapTileHeight } = this.mapManager.render(
-    //   this.ctx,
-    //   this.ctx.canvas.width,
-    //   this.ctx.canvas.height
-    // );
-    // this.mapTileWidth = mapTileWidth;
-    // this.mapTileHeight = mapTileHeight;
-    this.walls.forEach((wall) => wall.render(this.ctx));
-    this.players.forEach((player) => player.render(this.ctx));
+    this.walls.forEach((wall) =>
+      wall.render(this.ctx, this.cameraManager.position)
+    );
+    this.players.forEach((player) =>
+      player.render(this.ctx, this.cameraManager.position)
+    );
   }
 
   private clearCanvas() {
@@ -70,8 +70,9 @@ export class GameClient {
   }
 
   private update() {
-    // const { width: mapWidth, height: mapHeight } =
-    //   this.mapManager.getMapDimensions();
-    this.players.forEach((player) => player.update(this.ctx, this.walls));
+    this.players.forEach((player) =>
+      player.update(this.ctx, this.walls, this.cameraManager.position)
+    );
+    this.cameraManager.update(this.players[0]);
   }
 }

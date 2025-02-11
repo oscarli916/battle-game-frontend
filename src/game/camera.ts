@@ -1,31 +1,39 @@
+import { IPosition } from "../types/position";
 import { Player } from "./player";
 
 export class CameraManager {
-  private x: number = 0;
-  private y: number = 0;
+  public position: IPosition;
+  public canvasWidth: number;
+  public canvasHeight: number;
+  public worldWidth: number;
+  public worldHeight: number;
 
-  private lerp(start: number, end: number, t: number) {
-    return start * (1 - t) + end * t;
-  }
-
-  getPosition() {
-    return { x: this.x, y: this.y };
-  }
-
-  getTransformValues(
-    player: Player,
+  constructor(
     canvasWidth: number,
-    canvasHeight: number
+    canvasHeight: number,
+    worldWidth: number,
+    worldHeight: number
   ) {
-    const { x, y } = player.position;
-    const targetX = canvasWidth / 2 - x;
-    const targetY = canvasHeight / 2 - y;
+    this.position = { x: 0, y: 0 };
+    this.canvasWidth = canvasWidth;
+    this.canvasHeight = canvasHeight;
+    this.worldWidth = worldWidth;
+    this.worldHeight = worldHeight;
+  }
 
-    // Apply lerp for smooth transition
-    this.x = this.lerp(this.x, targetX, 0.1);
-    this.y = this.lerp(this.y, targetY, 0.1);
+  update(player: Player) {
+    const halfCanvasWidth = this.canvasWidth / 2;
 
-    return { moveX: this.x, moveY: this.y };
-    // return { moveX: targetX, moveY: targetY };
+    // update camera position based on player position
+    if (player.position.x > this.position.x + halfCanvasWidth) {
+      this.position.x = player.position.x - halfCanvasWidth;
+    } else if (player.position.x < this.position.x + halfCanvasWidth) {
+      this.position.x = player.position.x - halfCanvasWidth;
+    }
+
+    // ensure the camera does not go out of the world
+    if (player.position.x < halfCanvasWidth) {
+      this.position.x = 0;
+    }
   }
 }
