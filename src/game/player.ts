@@ -12,6 +12,7 @@ export class Player {
     left: { pressed: false },
     right: { pressed: false },
   };
+  private isJumping = false;
 
   constructor(position: IPosition, color: string) {
     this.position = position;
@@ -21,7 +22,10 @@ export class Player {
       switch (e.key) {
         case "w":
         case "ArrowUp":
-          this.velocity.y -= 30;
+          if (!this.isJumping) {
+            this.velocity.y -= 30;
+            this.isJumping = true;
+          }
           break;
         case "s":
         case "ArrowDown":
@@ -58,17 +62,14 @@ export class Player {
     });
   }
 
-  update(
-    ctx: CanvasRenderingContext2D,
-    walls: Wall[],
-    cameraPosition: IPosition
-  ) {
+  update(ctx: CanvasRenderingContext2D, walls: Wall[]) {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
     if (this.position.y + this.height + this.velocity.y < ctx.canvas.height) {
       this.velocity.y += GRAVITY;
     } else {
+      this.isJumping = false;
       this.velocity.y = 0;
     }
 
@@ -87,6 +88,7 @@ export class Player {
         this.position.x + this.width >= wall.position.x &&
         this.position.x <= wall.position.x + wall.dimension.width
       ) {
+        this.isJumping = false;
         this.velocity.y = 0;
         this.position.y = wall.position.y - this.height;
       }

@@ -6,6 +6,8 @@ export class GameClient {
   private ctx: CanvasRenderingContext2D;
   private canvasWidth: number = 1280;
   private canvasHeight: number = 800;
+  private worldWidth: number = 6400;
+  private worldHeight: number = 800;
   private players: Player[];
   private walls: Wall[];
   private cameraManager: CameraManager;
@@ -16,29 +18,31 @@ export class GameClient {
     canvas.width = this.canvasWidth;
     canvas.height = this.canvasHeight;
 
-    // this.cameraManager = new CameraManager();
-
     this.players = [
-      new Player({ x: 64, y: this.canvasHeight - 64 - 64 }, "red"),
+      new Player({ x: 64 * 3, y: this.canvasHeight - 64 - 64 }, "red"),
       //   new Player({ x: 64 * 3, y: this.canvasHeight - 64 }, "green"),
     ];
     this.walls = [
       new Wall({ x: 0, y: 0 }, { width: 64, height: this.canvasHeight }),
       new Wall(
         { x: 0, y: this.canvasHeight - 64 },
-        { width: 64 * 20, height: 64 }
+        { width: 64 * 25, height: 64 }
       ),
-      new Wall({ x: 64 * 20, y: 0 }, { width: 64, height: this.canvasHeight }),
       new Wall(
-        { x: 64 * 15, y: this.canvasHeight - 128 },
-        { width: 64, height: 64 }
+        { x: 64 * 27, y: this.canvasHeight - 64 },
+        { width: 64 * 13, height: 64 }
       ),
+      new Wall({ x: 64 * 40, y: 0 }, { width: 64, height: this.canvasHeight }),
+      // new Wall(
+      //   { x: 64 * 15, y: this.canvasHeight - 128 },
+      //   { width: 64, height: 64 }
+      // ),
     ];
     this.cameraManager = new CameraManager(
       this.canvasWidth,
       this.canvasHeight,
-      64 * 100,
-      800
+      this.worldWidth,
+      this.worldHeight
     );
 
     this.startRenderLoop();
@@ -70,9 +74,7 @@ export class GameClient {
   }
 
   private update() {
-    this.players.forEach((player) =>
-      player.update(this.ctx, this.walls, this.cameraManager.position)
-    );
+    this.players.forEach((player) => player.update(this.ctx, this.walls));
     this.cameraManager.update(this.players[0]);
   }
 }
