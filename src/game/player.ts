@@ -23,7 +23,7 @@ export class Player {
         case "w":
         case "ArrowUp":
           if (!this.isJumping) {
-            this.velocity.y -= 30;
+            this.velocity.y -= 15;
             this.isJumping = true;
           }
           break;
@@ -69,8 +69,9 @@ export class Player {
     if (this.position.y + this.height + this.velocity.y < ctx.canvas.height) {
       this.velocity.y += GRAVITY;
     } else {
-      this.isJumping = false;
-      this.velocity.y = 0;
+      console.log("game over");
+      this.position.x -= 64 * 10;
+      this.position.y = 0;
     }
 
     if (this.keys.right.pressed) {

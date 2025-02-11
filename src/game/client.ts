@@ -32,11 +32,23 @@ export class GameClient {
         { x: 64 * 27, y: this.canvasHeight - 64 },
         { width: 64 * 13, height: 64 }
       ),
-      new Wall({ x: 64 * 40, y: 0 }, { width: 64, height: this.canvasHeight }),
-      // new Wall(
-      //   { x: 64 * 15, y: this.canvasHeight - 128 },
-      //   { width: 64, height: 64 }
-      // ),
+      new Wall(
+        { x: 64 * 27, y: this.canvasHeight - 64 },
+        { width: 64 * 16, height: 64 }
+      ),
+      new Wall(
+        { x: 64 * 40, y: this.canvasHeight - 64 * 2 },
+        { width: 64 * 3, height: 64 }
+      ),
+      new Wall(
+        { x: 64 * 41, y: this.canvasHeight - 64 * 3 },
+        { width: 64 * 2, height: 64 }
+      ),
+      new Wall(
+        { x: 64 * 46.8, y: this.canvasHeight - 64 },
+        { width: 64 * 4, height: 64 }
+      ),
+      new Wall({ x: 64 * 50, y: 0 }, { width: 64, height: this.canvasHeight }),
     ];
     this.cameraManager = new CameraManager(
       this.canvasWidth,
