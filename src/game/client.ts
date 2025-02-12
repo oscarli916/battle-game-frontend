@@ -1,6 +1,7 @@
 import { CameraManager } from "./camera";
 import { Player } from "./player";
 import { Wall } from "./wall";
+import { WebSocketManager } from "./websocket";
 
 export class GameClient {
   private ctx: CanvasRenderingContext2D;
@@ -11,6 +12,8 @@ export class GameClient {
   private players: Player[];
   private walls: Wall[];
   private cameraManager: CameraManager;
+  private webSocketManager: WebSocketManager;
+  private whichPlayer: string = "";
 
   constructor(canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext("2d")!;
@@ -19,8 +22,8 @@ export class GameClient {
     canvas.height = this.canvasHeight;
 
     this.players = [
-      new Player({ x: 64 * 3, y: this.canvasHeight - 64 - 64 }, "red"),
-      //   new Player({ x: 64 * 3, y: this.canvasHeight - 64 }, "green"),
+      // new Player({ x: 64 * 3, y: this.canvasHeight - 64 - 64 }, "red", true),
+      // new Player({ x: 64 * 5, y: this.canvasHeight - 64 - 64 }, "green"),
     ];
     this.walls = [
       new Wall({ x: 0, y: 0 }, { width: 64, height: this.canvasHeight }),
@@ -45,10 +48,10 @@ export class GameClient {
         { width: 64 * 2, height: 64 }
       ),
       new Wall(
-        { x: 64 * 46.8, y: this.canvasHeight - 64 },
+        { x: 64 * 48, y: this.canvasHeight - 64 },
         { width: 64 * 4, height: 64 }
       ),
-      new Wall({ x: 64 * 50, y: 0 }, { width: 64, height: this.canvasHeight }),
+      new Wall({ x: 64 * 52, y: 0 }, { width: 64, height: this.canvasHeight }),
     ];
     this.cameraManager = new CameraManager(
       this.canvasWidth,
@@ -56,6 +59,7 @@ export class GameClient {
       this.worldWidth,
       this.worldHeight
     );
+    this.webSocketManager = new WebSocketManager(this.handleWebSocketMessage);
 
     this.startRenderLoop();
   }
@@ -86,7 +90,37 @@ export class GameClient {
   }
 
   private update() {
-    this.players.forEach((player) => player.update(this.ctx, this.walls));
+    if (this.players.length === 0) {
+      return;
+    }
+    this.players[0].update(this.ctx, this.walls, this.players[1]);
+    // this.players.forEach((player) => player.update(this.ctx, this.walls, this.players[1]));
     this.cameraManager.update(this.players[0]);
+
+    if (this.webSocketManager.connected) {
+      this.webSocketManager.send({
+        msgType: "coordinates",
+        payload: { ...this.players[0].position, player: this.whichPlayer },
+      });
+    }
   }
+
+  private handleWebSocketMessage = (data: any) => {
+    console.log(data);
+    if (data.msgType === "init") {
+      this.whichPlayer = data.payload.player;
+      this.players.push(
+        new Player({ x: data.payload.x, y: data.payload.y }, "red", true)
+      );
+    }
+
+    if (data.msgType === "coordinates") {
+      if (this.players.length === 1) {
+        this.players.push(
+          new Player({ x: data.payload.x, y: data.payload.y }, "green", false)
+        );
+      }
+      this.players[1].position = { x: data.payload.x, y: data.payload.y };
+    }
+  };
 }

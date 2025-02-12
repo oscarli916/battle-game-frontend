@@ -7,6 +7,7 @@ export class Player {
   private height: number = 64;
   public position: IPosition;
   private color: string;
+  private movable: boolean;
   private velocity = { x: 0, y: 0 };
   private keys = {
     left: { pressed: false },
@@ -14,9 +15,10 @@ export class Player {
   };
   private isJumping = false;
 
-  constructor(position: IPosition, color: string) {
+  constructor(position: IPosition, color: string, movable: boolean) {
     this.position = position;
     this.color = color;
+    this.movable = movable;
 
     window.addEventListener("keydown", (e) => {
       switch (e.key) {
@@ -62,14 +64,17 @@ export class Player {
     });
   }
 
-  update(ctx: CanvasRenderingContext2D, walls: Wall[]) {
+  update(ctx: CanvasRenderingContext2D, walls: Wall[], otherPlayer?: Player) {
+    if (!this.movable) {
+      return;
+    }
+
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
     if (this.position.y + this.height + this.velocity.y < ctx.canvas.height) {
       this.velocity.y += GRAVITY;
     } else {
-      console.log("game over");
       this.position.x -= 64 * 10;
       this.position.y = 0;
     }
@@ -80,6 +85,36 @@ export class Player {
       this.velocity.x = -5;
     } else {
       this.velocity.x = 0;
+    }
+
+    if (otherPlayer) {
+      if (
+        this.position.y + this.height <= otherPlayer.position.y &&
+        this.position.y + this.height + this.velocity.y >=
+          otherPlayer.position.y &&
+        this.position.x + this.width >= otherPlayer.position.x &&
+        this.position.x <= otherPlayer.position.x + otherPlayer.width
+      ) {
+        this.isJumping = false;
+        this.velocity.y = 0;
+        this.position.y = otherPlayer.position.y - this.height;
+      }
+
+      if (
+        this.position.x + this.width + this.velocity.x >
+          otherPlayer.position.x &&
+        this.position.x + this.velocity.x <
+          otherPlayer.position.x + otherPlayer.width &&
+        this.position.y + this.height > otherPlayer.position.y &&
+        this.position.y < otherPlayer.position.y + otherPlayer.height
+      ) {
+        this.velocity.x = 0;
+        if (this.keys.right.pressed) {
+          this.position.x = otherPlayer.position.x - this.width;
+        } else if (this.keys.left.pressed) {
+          this.position.x = otherPlayer.position.x + otherPlayer.width;
+        }
+      }
     }
 
     walls.forEach((wall) => {
