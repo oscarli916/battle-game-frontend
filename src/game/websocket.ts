@@ -4,7 +4,7 @@ export class WebSocketManager {
   private onMessageCallback: (data: any) => void;
 
   constructor(onMessageCallback: (data: any) => void) {
-    this.socket = new WebSocket("ws://localhost:8080/ws?id=123");
+    this.socket = new WebSocket(`${process.env.REACT_APP_WEBSOCKET_BASE_URL}?id=1`);
     this.onMessageCallback = onMessageCallback;
 
     this.socket.onopen = () => {
