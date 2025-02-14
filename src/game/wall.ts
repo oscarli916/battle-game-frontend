@@ -9,7 +9,11 @@ export class Wall {
     this.dimension = dimension;
   }
 
-  render(ctx: CanvasRenderingContext2D, cameraPosition: IPosition) {
+  render(
+    ctx: CanvasRenderingContext2D,
+    cameraPosition: IPosition,
+    debugMode: boolean
+  ) {
     ctx.fillStyle = "brown";
     ctx.fillRect(
       this.position.x - cameraPosition.x,
@@ -17,5 +21,17 @@ export class Wall {
       this.dimension.width,
       this.dimension.height
     );
+
+    if (debugMode) {
+      // Draw the yellow border
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2; // You can adjust the border width if needed
+      ctx.strokeRect(
+        this.position.x - cameraPosition.x,
+        this.position.y - cameraPosition.y,
+        this.dimension.width,
+        this.dimension.height
+      );
+    }
   }
 }

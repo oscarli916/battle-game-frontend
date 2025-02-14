@@ -1,10 +1,11 @@
 import { IPosition } from "../types/position";
+import { Button } from "./button";
 import { Wall } from "./wall";
 
 const GRAVITY = 1;
 export class Player {
-  private width: number = 64;
-  private height: number = 64;
+  public width: number = 64;
+  public height: number = 64;
   public position: IPosition;
   private color: string;
   private movable: boolean;
@@ -64,7 +65,12 @@ export class Player {
     });
   }
 
-  update(ctx: CanvasRenderingContext2D, walls: Wall[], otherPlayer?: Player) {
+  update(
+    ctx: CanvasRenderingContext2D,
+    walls: Wall[],
+    buttons: Button[],
+    otherPlayer?: Player
+  ) {
     if (!this.movable) {
       return;
     }
@@ -118,6 +124,40 @@ export class Player {
     }
 
     walls.forEach((wall) => {
+      if (
+        this.position.y + this.height <= wall.position.y &&
+        this.position.y + this.height + this.velocity.y >= wall.position.y &&
+        this.position.x + this.width >= wall.position.x &&
+        this.position.x <= wall.position.x + wall.dimension.width
+      ) {
+        this.isJumping = false;
+        this.velocity.y = 0;
+        this.position.y = wall.position.y - this.height;
+      }
+
+      if (
+        this.position.x + this.width + this.velocity.x > wall.position.x &&
+        this.position.x + this.velocity.x <
+          wall.position.x + wall.dimension.width &&
+        this.position.y + this.height > wall.position.y &&
+        this.position.y < wall.position.y + wall.dimension.height
+      ) {
+        this.velocity.x = 0;
+        if (this.keys.right.pressed) {
+          this.position.x = wall.position.x - this.width;
+        } else if (this.keys.left.pressed) {
+          this.position.x = wall.position.x + wall.dimension.width;
+        }
+      }
+    });
+
+    const buttonWalls = buttons
+      .filter((button) => {
+        return button.pressed === true;
+      })
+      .map((button) => button.walls)
+      .flat();
+    buttonWalls.forEach((wall) => {
       if (
         this.position.y + this.height <= wall.position.y &&
         this.position.y + this.height + this.velocity.y >= wall.position.y &&
