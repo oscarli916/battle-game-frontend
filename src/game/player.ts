@@ -1,5 +1,6 @@
 import { IPosition } from "../types/position";
 import { Button } from "./button";
+import { Elevator } from "./elevator";
 import { Wall } from "./wall";
 
 const GRAVITY = 1;
@@ -8,7 +9,7 @@ export class Player {
   public height: number = 64;
   public position: IPosition;
   private color: string;
-  private movable: boolean;
+  public movable: boolean;
   private velocity = { x: 0, y: 0 };
   private keys = {
     left: { pressed: false },
@@ -69,6 +70,7 @@ export class Player {
     ctx: CanvasRenderingContext2D,
     walls: Wall[],
     buttons: Button[],
+    elevators: Elevator[],
     otherPlayer?: Player
   ) {
     if (!this.movable) {
@@ -123,7 +125,7 @@ export class Player {
       }
     }
 
-    walls.forEach((wall) => {
+    [...walls, ...elevators].forEach((wall) => {
       if (
         this.position.y + this.height <= wall.position.y &&
         this.position.y + this.height + this.velocity.y >= wall.position.y &&

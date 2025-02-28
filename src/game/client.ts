@@ -1,5 +1,6 @@
 import { Button } from "./button";
 import { CameraManager } from "./camera";
+import { Elevator } from "./elevator";
 import { Player } from "./player";
 import { Wall } from "./wall";
 import { WebSocketManager } from "./websocket";
@@ -14,6 +15,7 @@ export class GameClient {
   private players: Player[];
   private walls: Wall[];
   private buttons: Button[];
+  private elevators: Elevator[];
   private cameraManager: CameraManager;
   private webSocketManager: WebSocketManager;
   private whichPlayer: string = "";
@@ -53,9 +55,12 @@ export class GameClient {
       ),
       new Wall(
         { x: 64 * 47, y: this.canvasHeight - 64 },
-        { width: 64 * 13, height: 64 }
+        { width: 64 * 34, height: 64 }
       ),
-      new Wall({ x: 64 * 60, y: 0 }, { width: 64, height: this.canvasHeight }),
+      new Wall(
+        { x: 64 * 71, y: 64 * 4 },
+        { width: 64 * 10, height: this.canvasHeight - 64 * 4 }
+      ),
     ];
     this.buttons = [
       new Button({ x: 64 * 51, y: this.canvasHeight - 64 - 32 }, [
@@ -64,6 +69,13 @@ export class GameClient {
           { width: 64 * 5, height: 64 }
         ),
       ]),
+    ];
+    this.elevators = [
+      new Elevator(
+        { x: 64 * 65, y: this.canvasHeight - 64 * 2 },
+        { width: 64 * 5, height: 32 },
+        2
+      ),
     ];
     this.cameraManager = new CameraManager(
       this.canvasWidth,
@@ -95,6 +107,9 @@ export class GameClient {
     this.buttons.forEach((button) =>
       button.render(this.ctx, this.cameraManager.position, this.debugMode)
     );
+    this.elevators.forEach((elevator) =>
+      elevator.render(this.ctx, this.cameraManager.position)
+    );
     this.players.forEach((player) =>
       player.render(this.ctx, this.cameraManager.position)
     );
@@ -108,9 +123,16 @@ export class GameClient {
     if (this.players.length === 0) {
       return;
     }
-    this.players[0].update(this.ctx, this.walls, this.buttons, this.players[1]);
+    this.players[0].update(
+      this.ctx,
+      this.walls,
+      this.buttons,
+      this.elevators,
+      this.players[1]
+    );
     // this.players.forEach((player) => player.update(this.ctx, this.walls, this.players[1]));
     this.buttons.forEach((button) => button.update(this.players));
+    this.elevators.forEach((elevator) => elevator.update(this.players));
     this.cameraManager.update(this.players[0]);
 
     if (this.webSocketManager.connected) {
